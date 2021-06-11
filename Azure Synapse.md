@@ -33,3 +33,10 @@ Azure Synapse Analytics supports these sharding patterns:
 - **Round-robin** - distributes data evenly across the nodes, but without any further optimization. A distribution is first chosen at random, and then buffers of rows are assigned to distributions sequentially. It is quick to load data into a round-robin table, but query performance can often be better with hash distributed tables. Joins on round-robin tables require reshuffling data, and this takes additional time. Good for temp/staging tables or when there's no obvious joining key or good candidate column.
 - **Replicated** -  fastest query performance for small tables. Caches a full copy on each compute node. Consequently, replicating a table removes the need to transfer data among compute nodes before a join or aggregation. Extra storage is required, and there are additional overheads that are incurred when writing data which make large tables impractical.
 
+### Polybase
+
+PolyBase is a data virtualization feature for SQL Server. Enables a SQL Server instance to query data with T-SQL directly from SQL Server, Oracle, Teradata, MongoDB, Hadoop clusters, Cosmos DB, Azure Blob storage or Azure Data Lake Store without separately installing client connection software. 
+
+A key use case for data virtualization with the PolyBase feature is to allow the data to stay in its original location and format.  We can virtualize the external data through the SQL Server instance, so that it can be queried in place like any other table in SQL Server. This process minimizes the need for ETL processes for data movement. This data virtualization scenario is possible with the use of PolyBase connectors.
+
+

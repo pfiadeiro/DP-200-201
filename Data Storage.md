@@ -23,3 +23,14 @@
 - **RBAC** - To access data in a storage account, the client makes a request over HTTP or HTTPS. Every request to a secure resource must be authorized. The service ensures that the client has the permissions required to access the data. You can choose from several access options. Arguably, the most flexible option is role-based access. Azure Storage supports Azure Active Directory and role-based access control (RBAC) for both resource management and data operations. 
 - **Auditing** - Azure Storage access can be audited by using the built-in Storage Analytics service. It logs every operation in real time and logs can be searched for specific requests.
 
+### Azure Data Lake Storage Gen2
+
+Azure Data Lake Storage combines a file system with a storage platform. It builds on Azure Blob storage capabilities to optimize it specifically for analytics workloads. This integration enables analytics performance, the tiering and data lifecycle management capabilities of Blob storage, and the high-availability, security, and durability capabilities of Azure Storage.
+
+Some of its advantages are:
+- **Hadoop compatible access** - it can treat the data as if it's stored in a Hadoop Distributed File System. With this feature, we can store the data in one place and access it through compute technologies including Azure Databricks, Azure HDInsight, and Azure Synapse Analytics without moving the data between environments.
+- **Security** - supports access control lists (ACLs) and Portable Operating System Interface (POSIX) permissions. Permissions can be set at a directory level or file level for the data stored within the data lake. 
+- **Performance** - organizes the stored data into a hierarchy of directories and subdirectories, much like a file system, for easier navigation. As a result, data processing requires less computational resources, reducing both the time and cost.
+- **Data redundancy** - takes advantage of the Azure Blob replication models that provide data redundancy in a single data center with locally redundant storage (LRS), or to a secondary region by using the Geo-redundant storage (GRS) option.
+
+Hierarchical namespaces organize blob data into directories and stores metadata about each directory and the files within it. This structure allows operations, such as directory renames and deletes, to be performed in a single atomic operation. Flat namespaces, by contrast, require several operations proportionate to the number of objects in the structure. Hierarchical namespaces keep the data organized, which yields better storage and retrieval performance for an analytical use case and lowers the cost of analysis.
