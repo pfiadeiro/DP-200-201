@@ -152,3 +152,28 @@ Spark has optimized this operation by using a format called Tungsten.
 Tungsten prevents the need for expensive serialization and de-serialization of objects in order to get data from one JVM to another.
 
 UnsafeRow is the in-memory storage format for Spark SQL, DataFrames & Datasets. Advantages include compactness and efficiency (Spark can operatate directly out of Tungsten).
+
+
+### Delta Lake
+
+Delta Lake is a file format that can help build a data lake comprised of one or many tables in Delta Lake format. Delta Lake integrates tightly with Apache Spark, and uses an open format that is based on Parquet. Because it is an open-source format, Delta Lake is also supported by other data platforms, including Azure Synapse Analytics.
+
+It is an open-source storage layer that brings ACID transactions to Apache Spark and big data workloads.
+
+We can read and write data that's stored in Delta Lake by using Apache Spark SQL batch and streaming APIs. It provides the following functionalities:
+
+- **ACID Transactions**: Data lakes typically have multiple data pipelines reading and writing data concurrently, and data engineers have to go through a tedious process to ensure data integrity, due to the lack of transactions. Delta Lake brings ACID transactions to data lakes. It provides serializability, the strongest level of isolation level.
+- **Scalable Metadata Handling**: In big data, even the metadata itself can be "big data". Delta Lake treats metadata just like data, leveraging Spark's distributed processing power to handle all its metadata. As a result, Delta Lake can handle petabyte-scale tables with billions of partitions and files at ease.
+- **Time Travel (data versioning)**: Delta Lake provides snapshots of data enabling developers to access and revert to earlier versions of data for audits, rollbacks or to reproduce experiments.
+- **Open Format**: All data in Delta Lake is stored in Apache Parquet format enabling Delta Lake to leverage the efficient compression and encoding schemes that are native to Parquet.
+- **Unified Batch and Streaming Source and Sink**: A table in Delta Lake is both a batch table, as well as a streaming source and sink. Streaming data ingest, batch historic backfill, and interactive queries all just work out of the box.
+**Schema Enforcement**: Delta Lake provides the ability to specify your schema and enforce it. This helps ensure that the data types are correct and required columns are present, preventing bad **data from causing data corruption.
+- **Schema Evolution**:Big data is continuously changing. Delta Lake enables you to make changes to a table schema that can be applied automatically, without the need for cumbersome DDL.
+- **100% Compatible with Apache Spark API**: Developers can use Delta Lake with their existing data pipelines with minimal change as it is fully compatible with Spark, the commonly used big data processing engine.
+
+Some additional features and optimizations:
+
+- **Optimize** - performs file compaction, small files are compacted together into new larger files up to 1GB. This helps dealing with the small file problem.
+- **Data skipping** - performance optimization that aims at speeindg up queries that contain filters.
+- **ZOrdering** - technique to colocate related information in the same set of files. Maps multidimensional data to one dimension while preserving locality of data points.
+- **Vacuum** - allows the clean up of invalid files to save on storage costs. Invalid files are small files compacted into a larger file with the *Optimize* command.
