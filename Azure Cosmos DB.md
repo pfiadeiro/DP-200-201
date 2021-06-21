@@ -2,24 +2,46 @@
 
 ### Request Unit (RU)
 
-Azure Cosmos DB measures throughput using something called a request unit (RU). Request unit usage is measured per second, so the unit of measure is request units per second (RU/s). You must reserve the number of RU/s you want Azure Cosmos DB to provision in advance, so it can handle the load you've estimated, and you can scale your RU/s up or down at any time to meet current demand. An RU is the amount of CPU, disk I/O, and memory required to read 1 KB of data in 1 second.
+Azure Cosmos DB measures throughput using something called a **request unit** (RU). Request unit usage is measured per second, so the unit of measure is request units per second (RU/s). We must reserve the number of RU/s we want Azure Cosmos DB to provision in advance, so it can handle the load we've estimated, and we can scale our RU/s up or down at any time to meet current demand. An RU is the amount of CPU, disk I/O, and memory required to read 1 KB of data in 1 second.
 
+RUs are provisioned at database level and can also be provisioned at container level. Throughput on an Azure Cosmos database is shared across all the containers in the database unless explicitly defined at container level.
+
+The RUs consumed depend on **item size** (the bigger, the more RUs needed), **item indexing** (fewer RUs are consumed if not all items in a container are indexed), **item property count**, **indexed properties** (the more indexed properties, the higher the RUs needed), **data consistency policy** (strong and bounded staleness consume two times more RUs on read operations) and **query complexity**.
+
+If throughput limits are exceeded, request will be rate-limited.
+
+The RUs provisioned on a Cosmos container (or database) are provisioned in all the regions associated with the accounted so if we have *R* RUs and *N* regions, the total will be *R * N*.
+
+### APIs available
+
+- **Core(SQL)** - stores data in document format. It offers the best end-to-end experience as we have full control over the interface, service, and the SDK client libraries. We can query the hierarchical JSON documents with a SQL-like language. Core (SQL) uses JavaScript's type system, expression evaluation, and function invocation.
+- **MongoDB** - allows existing MongoDB client SDKs, drivers, and tools to interact with the data transparently, as if they are running against an actual MongoDB database. The data is stored in document format, which is the same as using Core (SQL).
+- **Cassandra** - stores data in column-oriented schema. It's possible to query data by using the Cassandra Query Language (CQL), and data will appear to be a partitioned row store. Just like the MongoDB API, any clients or tools should be able to connect transparently to Azure Cosmos DB; only connection settings should need to be updated. 
+- **Gremlin** -  allows users to make graph queries and stores data as edges and vertices. A graph-based view on the database means data is either a vertex (which is an individual item in the database), or an edge (which is a relationship between items in the database).
+- **Table** - stores data in key/value format. Provides support for applications that are written for Azure Table Storage that need premium capabilities like global distribution, high availability, scalable throughput. The original Table API only allows for indexing on the Partition and Row keys; there are no secondary indexes. Storing table data in Cosmos DB automatically indexes all the properties, and requires no index management. Querying is accomplished by using OData and LINQ queries in code, and the original REST API for GET operations.
 ### Partition Strategy
 
-If you continue to add new data to a single server or a single partition, it will eventually run out of space. A partitioning strategy enables you to add more partitions to your database when need them. This scaling strategy is called scale out or horizontal scaling.
+Azure Cosmos DB uses partitioning to scale individual containers in a database to meet the performance needs. In partitioning, the items in a container are divided into distinct subsets called ***logical partitions***. Logical partitions are formed based on the value of a partition key that is associated with each item in a container. All the items in a logical partition have the same partition key value.
 
-A partition key defines the partition strategy, it's set when you create a container and can't be changed. Selecting the right partition key is an important decision to make early in your development process.
+In addition to a partition key that determines the item's logical partition, each item in a container has an *item ID* (unique within a logical partition). Combining the partition key and the item ID creates the item's ***index***, which uniquely identifies the item.
 
-A partition key is the value by which Azure organizes your data into logical divisions. It should aim to evenly distribute operations across the database to avoid hot partitions. A hot partition is a single partition that receives many more requests than the others, which can create a throughput bottleneck.
+A container is scaled by distributing data and throughput across ***physical partitions***. Internally, one or more logical partitions are mapped to a single physical partition. Typically smaller containers have many logical partitions but they only require a single physical partition. Unlike logical partitions, physical partitions are an internal implementation of the system and they are entirely managed by Azure Cosmos DB.
 
-The amount of required RU's and storage determines the number of required physical partitions for the container, which are completely managed by Azure Cosmos DB. When additional physical partitions are needed, Cosmos DB automatically creates them by splitting existing ones. There is no downtime or performance impact for the application
+The number of physical partitions in a container depends on the number of throughput provisioned (each individual physical partition can provide a throughput of up to 10,000 request units per second) and the total data storage (each individual physical partition can store up to 50GB data).
 
-The storage space for the data associated with each partition key can't exceed 20 GB, which is the size of one physical partition in Azure Cosmos DB.
+Throughput provisioned for a container is divided evenly among physical partitions. A partition key design that doesn't distribute requests evenly might result in too many requests directed to a small subset of partitions that become "hot." Hot partitions lead to inefficient use of provisioned throughput, which might result in rate-limiting and higher costs.
 
-Best practices:
+Azure Cosmos DB transparently and automatically manages the placement of logical partitions on physical partitions to efficiently satisfy the scalability and performance needs of the container. As the throughput and storage requirements of an application increase, Azure Cosmos DB moves logical partitions to automatically spread the load across a greater number of physical partitions. It uses hash-based partitioning to spread logical partitions across physical partitions. 
+
+A partition key defines the partition strategy, it's set when creating a container and can't be changed. 
+
+**Best practices:**
+- Be a property that has a value which does not change
 - Partition key with a high cardinality
 - Evenly distribute requests
 - Evenly distribute storage
+
+For most containers this should be enough. For large read-heavy containers, choosing a partition key that appears frequently as a filter in queries can make sense. Queries can then be efficiently routed to only the relevant physical partitions.
 
 ### Indexing modes
 
@@ -45,10 +67,13 @@ Azure Cosmos DB regions operating as master regions in a multi-master configurat
 
 ### Consistency levels
 
-| Consistency Level | Guarantees |
-| ----------------- | ---------- |
-Strong | Linearizability. Reads are guaranteed to return the most recent version of an item.
-Bounded Staleness | Consistent Prefix. Reads lag behind writes by at most k prefixes or t interval.
-Session	| Consistent Prefix. Monotonic reads, monotonic writes, read-your-writes, write-follows-reads.
-Consistent Prefix | Updates returned are some prefix of all the updates, with no gaps.
-Eventual | Out of order reads.
+![CosmosDB Consistency Levels](images/consistency-levels.png)  
+
+
+| Consistency Level | Guarantees | Data Consistency | Latency | Throughput | Examples
+| ----------------- | ---------- | ---------------- | ------- | ---------- | -------- |
+Strong | Linearizability. Reads are guaranteed to return the most recent version of an item. Not possible in multiple write regions. | Highest | High | Lowest | Financial, inventory
+Bounded Staleness | Consistent Prefix. Reads lag behind writes by at most k prefixes or t interval. | High | High | Low | Apps showing status, tracking, scores, etc
+Session	| Consistent Prefix. Monotonic reads, monotonic writes, read-your-writes, write-follows-reads. Strong consistency for the session (all reads are current with writes from that session but writes from other sessions may lag), data from other sessions come in order, may just not be current | Moderate | Moderate | Moderate | Social apps, shopping cart
+Consistent Prefix | Updates returned are some prefix of all the updates, with no gaps. Reads are consistent to a specific point in time, they are accurate but may not be current and there's no guarantee on how current values are| Low | Low | Moderate | Social media (comments, likes), apps with updates like scores
+Eventual | Out of order reads. | Lowest | Low | Highest | Non-ordered updates like reviews and ratings
