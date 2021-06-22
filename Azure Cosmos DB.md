@@ -1,6 +1,6 @@
-## Azure Cosmos DB
+# Azure Cosmos DB
 
-### Request Unit (RU)
+## Request Unit (RU)
 
 Azure Cosmos DB measures throughput using something called a **request unit** (RU). Request unit usage is measured per second, so the unit of measure is request units per second (RU/s). We must reserve the number of RU/s we want Azure Cosmos DB to provision in advance, so it can handle the load we've estimated, and we can scale our RU/s up or down at any time to meet current demand. An RU is the amount of CPU, disk I/O, and memory required to read 1 KB of data in 1 second.
 
@@ -12,14 +12,14 @@ If throughput limits are exceeded, request will be rate-limited.
 
 The RUs provisioned on a Cosmos container (or database) are provisioned in all the regions associated with the accounted so if we have *R* RUs and *N* regions, the total will be *R * N*.
 
-### APIs available
+## APIs available
 
 - **Core(SQL)** - stores data in document format. It offers the best end-to-end experience as we have full control over the interface, service, and the SDK client libraries. We can query the hierarchical JSON documents with a SQL-like language. Core (SQL) uses JavaScript's type system, expression evaluation, and function invocation.
 - **MongoDB** - allows existing MongoDB client SDKs, drivers, and tools to interact with the data transparently, as if they are running against an actual MongoDB database. The data is stored in document format, which is the same as using Core (SQL).
 - **Cassandra** - stores data in column-oriented schema. It's possible to query data by using the Cassandra Query Language (CQL), and data will appear to be a partitioned row store. Just like the MongoDB API, any clients or tools should be able to connect transparently to Azure Cosmos DB; only connection settings should need to be updated. 
 - **Gremlin** -  allows users to make graph queries and stores data as edges and vertices. A graph-based view on the database means data is either a vertex (which is an individual item in the database), or an edge (which is a relationship between items in the database).
 - **Table** - stores data in key/value format. Provides support for applications that are written for Azure Table Storage that need premium capabilities like global distribution, high availability, scalable throughput. The original Table API only allows for indexing on the Partition and Row keys; there are no secondary indexes. Storing table data in Cosmos DB automatically indexes all the properties, and requires no index management. Querying is accomplished by using OData and LINQ queries in code, and the original REST API for GET operations.
-### Partition Strategy
+## Partition Strategy
 
 Azure Cosmos DB uses partitioning to scale individual containers in a database to meet the performance needs. In partitioning, the items in a container are divided into distinct subsets called ***logical partitions***. Logical partitions are formed based on the value of a partition key that is associated with each item in a container. All the items in a logical partition have the same partition key value.
 
@@ -43,7 +43,9 @@ A partition key defines the partition strategy, it's set when creating a contain
 
 For most containers this should be enough. For large read-heavy containers, choosing a partition key that appears frequently as a filter in queries can make sense. Queries can then be efficiently routed to only the relevant physical partitions.
 
-### Indexing modes
+## Indexing modes
+
+By default, all document properties in Azure Cosmos DB are indexed.
 
 The three indexing modes you can use with Azure Cosmos DB are:
 
@@ -53,19 +55,18 @@ The three indexing modes you can use with Azure Cosmos DB are:
 
 **None**: No index is created. Queries are expensive on collections that aren't indexed. If you're using your Azure Cosmos DB collection to read records directly rather than querying the collection, it's possible to avoid the overhead of indexing.
 
-### Multi-master support
+## Multi-master support
 
 Multi-master support is an option that can be enabled on new Azure Cosmos DB accounts. Once the account is replicated in multiple regions, each region is a master region that equally participates in a write-anywhere model, also known as an active-active pattern.
 
 Azure Cosmos DB regions operating as master regions in a multi-master configuration automatically work to converge data written to all replicas and ensure global consistency and data integrity.
-
-### Conflict resolution
+## Conflict resolution
 
 - **Last-Writer-Wins (LWW)**, in which conflicts are resolved based on the value of a user-defined integer property in the document. By default _ts is used to determine the last written document. Last-Writer-Wins is the default conflict handling mechanism.
 - **Custom - User-defined function**, in which you can fully control conflict resolution by registering a User-defined function to the collection. A User-defined function is a special type of stored procedure with a specific signature. If the User-defined function fails or does not exist, Azure Cosmos DB will add all conflicts into the read-only conflicts feed they can be processed asynchronously.
 - **Custom - Async**, in which Azure Cosmos DB excludes all conflicts from being committed and registers them in the read-only conflicts feed for deferred resolution by the user’s application. The application can perform conflict resolution asynchronously and use any logic or refer to any external source, application, or service to resolve the conflict.
 
-### Consistency levels
+## Consistency levels
 
 ![CosmosDB Consistency Levels](images/consistency-levels.png)  
 
@@ -73,7 +74,18 @@ Azure Cosmos DB regions operating as master regions in a multi-master configurat
 | Consistency Level | Guarantees | Data Consistency | Latency | Throughput | Examples
 | ----------------- | ---------- | ---------------- | ------- | ---------- | -------- |
 Strong | Linearizability. Reads are guaranteed to return the most recent version of an item. Not possible in multiple write regions. | Highest | High | Lowest | Financial, inventory
-Bounded Staleness | Consistent Prefix. Reads lag behind writes by at most k prefixes or t interval. | High | High | Low | Apps showing status, tracking, scores, etc
+Bounded Staleness | Consistent Prefix. Reads lag behind writes by at most k prefixes or t interval. It's consistent beyond a user-defined threshold, provides a guarantee for "how eventual" eventual is. | High | High | Low | Apps showing status, tracking, scores, etc
 Session	| Consistent Prefix. Monotonic reads, monotonic writes, read-your-writes, write-follows-reads. Strong consistency for the session (all reads are current with writes from that session but writes from other sessions may lag), data from other sessions come in order, may just not be current | Moderate | Moderate | Moderate | Social apps, shopping cart
 Consistent Prefix | Updates returned are some prefix of all the updates, with no gaps. Reads are consistent to a specific point in time, they are accurate but may not be current and there's no guarantee on how current values are| Low | Low | Moderate | Social media (comments, likes), apps with updates like scores
-Eventual | Out of order reads. | Lowest | Low | Highest | Non-ordered updates like reviews and ratings
+Eventual | Out of order reads. | Lowest | Low | Highest | Non-ordered updates like reviews and ratings.
+
+## Random notes
+
+Automatic failover can be configured and failover priority for regions can be changed.
+
+Manual failover can be executed as well.
+
+Change feed is a persistent record of changes to a container in the order they occur. The persisted changes can be processed asynchronously and incrementally, and the output can be distributed across one or more consumers for parallel processing. Change feed is enabled by default for all Azure Cosmos accounts.
+
+
+

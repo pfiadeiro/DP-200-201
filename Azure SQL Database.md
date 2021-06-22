@@ -1,10 +1,10 @@
-## Azure SQL Database
+# Azure SQL Database
 
-### Purchasing Models
+## Purchasing Models
 
 There are 2 purchasing models:
 - **vCore-based** provides a choice between a provisioned compute tier and a serverless compute tier. The provisioned compute tier allows us to choose exact amount of of compute resources that are always provisioned for our workload. With the serverless compute tier, we specify the autoscaling of the compute resources over a configurable compute range.
-- - **DTU-based** provides bundled compute and storage packages balanced for common workloads.
+- **DTU-based** provides bundled compute and storage packages balanced for common workloads.
 
 ## Azure Database Migration Service
 
@@ -66,11 +66,21 @@ Authorization refers to what an identity can do within an Azure SQL Database. Th
 
 Azure SQL Database enforces Transport Layer Security (TLS) encryption at all times for all connections, which ensures all data is encrypted "in transit" between the database and the client.
 
-### Transparent data encryption
+Also available on Synapse.
+
+### Transparent data encryption 
 
 Azure SQL Database protects your data at rest using transparent data encryption (TDE). TDE performs real-time encryption and decryption of the database, associated backups, and transaction log files at rest without requiring changes to the application. Using a database encryption key, transparent data encryption performs real-time I/O encryption and decryption of the data at the page level. Each page is decrypted when it's read into memory and then encrypted before being written to disk.
 
 By default, TDE is enabled for all newly deployed Azure SQL databases.
+
+Also available on Synapse.
+
+### Always Encrypted
+
+Always Encrypted is a feature designed to protect sensitive data. It allows clients to encrypt sensitive data inside client applications and never reveal the encryption keys to the Database Engine (SQL Database or SQL Server). As a result, Always Encrypted provides a separation between those who own the data and can view it, and those who manage the data but should have no access. 
+
+The initial setup of Always Encrypted in a database involves generating Always Encrypted keys, creating key metadata, configuring encryption properties of selected database columns, and/or encrypting data that may already exist in columns that need to be encrypted. 
 
 ### Dynamic data masking
 
@@ -78,14 +88,42 @@ By using the dynamic data masking feature of Azure SQL Database, we can limit th
 
 Data masking rules consist of the column to apply the mask to, and how the data should be masked. We can create our own masking format, or use one of the standard masks
 
+- **Default** - XXXX or fewer Xs if size of field is less than 4 chars for string data types; 0 value for numeric data types; 01-01-1900 for date/time data types; empty value for special data types like GUID, binary, image, spatial types.
+- **Credit Card** - Exposes the last 4 digits and adds a constant string as a prefix such as XXXX-XXXX-XXXX-1234
+- **Email** - exposes first letter and replaces the domain with XXX.com such as aXX@XXXX.com
+- **Random Number** - generates random number according to defined boundaries
+- **Custom text** - exposes the first and last characters and adds a custom padding string in the middle.
+
+Also available on Synapse.
+
 ### Azure SQL Database auditing
 
-By enabling auditing, operations that occur on the database are stored for later inspection or to have automated tools analyze them. Auditing is also used for compliance management or understanding how your database is used. Auditing is also required if we wish to use Azure threat detection on our Azure SQL database.
+By enabling auditing, operations that occur on the database are stored for later inspection or to have automated tools analyze them. Auditing is also used for compliance management or understanding how the database is used. Auditing is also required if we wish to use Azure threat detection on Azure SQL database. It can be enable at server level or database level.
+
+Also available on Synapse.
 
 ### Advanced Data Security
 
-Advanced Data Security (ADS) provides a set of advanced SQL security capabilities, including data discovery & classification, vulnerability assessment, and Advanced Threat Protection.
+Advanced Data Security (ADS) provides a set of advanced SQL security capabilities, including data discovery & classification, vulnerability assessment, and Advanced Threat Protection. 
 
 - **Data discovery & classification** provides capabilities built into Azure SQL Database for discovering, classifying, labeling & protecting the sensitive data in the databases. It can be used to provide visibility into database classification state, and to track the access to sensitive data within the database and beyond its borders.
-- **Vulnerability assessment** is an easy to configure service that can discover, track, and help remediate potential database vulnerabilities. It provides visibility into the security state, and includes actionable steps to resolve security issues, and enhance database fortifications.
-- **Advanced Threat Protection** detects anomalous activities indicating unusual and potentially harmful attempts to access or exploit the database. It continuously monitors the database for suspicious activities, and provides immediate security alerts on potential vulnerabilities, SQL injection attacks, and anomalous database access patterns. Advanced Threat Protection alerts provide details of the suspicious activity and recommend action on how to investigate and mitigate the threat.
+- **Vulnerability assessment** is an easy to configure service that can discover, track, and help remediate potential database vulnerabilities. It provides visibility into the security state, and includes actionable steps to resolve security issues, and enhance database fortifications (requires Azure Defender for SQL).
+- **Advanced Threat Protection** detects anomalous activities indicating unusual and potentially harmful attempts to access or exploit the database. It continuously monitors the database for suspicious activities, and provides immediate security alerts on potential vulnerabilities, SQL injection attacks, and anomalous database access patterns. Advanced Threat Protection alerts provide details of the suspicious activity and recommend action on how to investigate and mitigate the threat (requires Azure Defender for SQL).
+
+
+## Business continuity
+
+### Active geo-replication
+
+Active geo-replication is an Azure SQL Database feature that allows the creation of readable secondary databases of individual databases on a server in the same or different data center (region).
+
+Up to four secondaries are supported in the same or different regions, and the secondaries can also be used for read-only access queries.
+
+An application can access a secondary database for read-only operations using the same or different security principals used for accessing the primary database. The secondary databases operate in snapshot isolation mode to ensure replication of the updates of the primary (log replay) is not delayed by queries executed on the secondary.
+
+
+### Auto-failover groups
+
+The auto-failover groups feature allows the management of the replication and failover of a group of databases on a server or all databases in a managed instance to another region. It is a declarative abstraction on top of the existing active geo-replication feature, designed to simplify deployment and management of geo-replicated databases at scale. 
+
+Failover can be initiated manually or can be delegated to the Azure service based on a user-defined policy. The latter option allows automatic recovery of multiple related databases in a secondary region after a catastrophic failure or other unplanned event that results in full or partial loss of the SQL Database or SQL Managed Instance availability in the primary region.
