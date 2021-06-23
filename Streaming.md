@@ -1,10 +1,10 @@
-## Streaming
+# Streaming
 
 In the context of analytics, data streams are the data pertaining to the occurrence of specific activities that are emitted by applications, IoT devices or sensors, or other sources known as data producers. These perpetually generated data streams typically contain temporal and additional information about the events.
 
 Data streams are most often used to better understand change over time. For example, an organization may perform sentiment analysis on tweets to see if an advertising campaign results in more positive comments about the company or its products.
 
-### Approaches to data stream processing
+## Approaches to data stream processing
 
 There are two approaches to processing data streams: live and on-demand.
 
@@ -12,7 +12,7 @@ The most commonly adopted method for processing data streams is to analyze new d
 
 The "on-demand" approach for processing streaming data involves persisting all incoming data in a data store, such as Azure Data Lake Storage (ADLS) Gen2. This method allows the collection of streaming data over time and store it as static data. It can then be processed in batches when convenient or during times when compute costs are lower.
 
-### Event processing
+## Event processing
 
 Event processing refers to the consumption and analysis of a continuous data stream to extract latent knowledge and derive actionable insights from the events happening within that stream. Event processing pipelines provide an end-to-end solution for ingesting, transforming, and analyzing data streams and are made up of three distinct components:
 
@@ -22,7 +22,7 @@ Event processing refers to the consumption and analysis of a continuous data str
 
 Event processing pipelines generally chain together multiple services to create a near-real-time analytics pipeline. 
 
-### Azure Streaming Analytics
+## Azure Streaming Analytics
 
 Azure Stream Analytics is a platform-as-a-service (PaaS) event processing engine. It enables the transformation and analysis of large volumes of streaming data arriving from Azure Event Hubs and IoT Hub and static data from Azure storage. 
 
@@ -33,9 +33,28 @@ ost. It has built-in recovery capabilities in case the delivery of an event fail
 
 Streaming Units (SUs) represents the computing resources that are allocated to execute a Stream Analytics job.
 
-Azure Stream Analytics includes native support for five kinds of temporal windowing functions (Tumbling, Hopping, Sliding, Session, Snapshot).
+Azure Stream Analytics includes native support for five kinds of temporal windowing functions (Tumbling, Hopping, Sliding, Session, Snapshot):
 
-### Azure Event Hub
+- **Tumbling Window** - segment a data stream into distinct time segments and perform a function against them. The key differentiators of a Tumbling window are that they repeat, do not overlap, and an event cannot belong to more than one tumbling window.
+
+![Tumbling Window](images/TumblingWindow.png)
+
+- **Hopping Window** - hop forward in time by a fixed period. It may be easy to think of them as Tumbling windows that can overlap and be emitted more often than the window size. Events can belong to more than one Hopping window result set. 
+
+![Hopping Window](images/HoppingWindow.png)  
+
+- **Sliding Window** - output events only for points in time when the content of the window acctually changes (an event enters or exits the window). Every window has, at least, one event.
+
+![Sliding Window](images/SlidingWindow.png)  
+
+- **Session Window** - group events that arrive at similar times, filtering out periods of time where there is no data. A session window begins when the first event occurs. If another event occurs within the specified timeout from the last ingested event, then the window extends to include the new event. Otherwise if no events occur within the timeout, then the window is closed at the timeout. If events keep occurring within the specified timeout, the session window will keep extending until maximum duration is reached. Since maximum duration chekcing intervals are set to be the same size as the specified max duration (if 10 - 10,20,30,40...), the actual duration of a session window could be up to twice maxDuration.
+
+![Session Window](images/SessionWindow.png)  
+
+- **Snapshot Window** - grups events that have the same timestamp. DOesn't require a specific window function, can just use System.Timestamp() in the GROUP BY clause.
+
+
+## Azure Event Hub
 
 Azure Event Hubs is a cloud-based, event-processing service that can receive and process millions of events per second. Event Hubs acts as a front door for an event pipeline, to receive incoming data and stores this data until processing resources are available.
 

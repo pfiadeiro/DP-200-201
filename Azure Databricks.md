@@ -1,21 +1,21 @@
-## Azure Databricks
+# Azure Databricks
 
 Azure Databricks is a data analytics platform optimized for the Microsoft Azure cloud services platform. Azure Databricks offers three environments for developing data intensive applications: Databricks SQL, Databricks Data Science & Engineering, and Databricks Machine Learning.
 
 **Databricks SQL** provides an easy-to-use platform for analysts who want to run SQL queries on their data lake, create multiple visualization types to explore query results from different perspectives, and build and share dashboards.
 
-**Databricks Data Science & Engineering** provides an interactive workspace that enables collaboration between data engineers, data scientists, and machine learning engineers. For a big data pipeline, the data (raw or structured) is ingested into Azure through Azure Data Factory in batches, or streamed near real-time using Apache Kafka, Event Hub, or IoT Hub. This data lands in a data lake for long term persisted storage, in Azure Blob Storage or Azure Data Lake Storage. As part of your analytics workflow, use Azure Databricks to read data from multiple data sources and turn it into breakthrough insights using Spark.
+**Databricks Data Science & Engineering** provides an interactive workspace that enables collaboration between data engineers, data scientists, and machine learning engineers. For a big data pipeline, the data (raw or structured) is ingested into Azure through Azure Data Factory in batches, or streamed near real-time using Apache Kafka, Event Hub, or IoT Hub. This data lands in a data lake for long term persisted storage, in Azure Blob Storage or Azure Data Lake Storage. As part of an analytics workflow, Databricks can be used to read data from multiple data sources and turn it into insights using Spark.
 
 **Databricks Machine Learning** is an integrated end-to-end machine learning environment incorporating managed services for experiment tracking, model training, feature development and management, and feature and model serving.
 
 To address the problems seen on other Big Data platforms, Azure Databricks was optimized from the ground up, with a focus on performance and cost-efficiency in the cloud. Some of its key capabilities are:
-- High-speed connectors to Azure storage services, such as Azure - Blob Store and Azure Data Lake
+- High-speed connectors to Azure storage services, such as Azure Blob Store and Azure Data Lake
 - Auto-scaling and auto-termination of Spark clusters to minimize costs
 - Caching
 - Indexing
 - Advanced query optimization
 
-### Azure Databricks Platform Architecture
+## Azure Databricks Platform Architecture
 
 ![Platform Architecture](images/databricks-platform-architecture.png)  
 
@@ -39,7 +39,7 @@ We can write to the default DBFS file storage as needed, but we cannot change th
 
 If we need advanced network connectivity, such as custom VNet peering and VNet injection, we could deploy Azure Databricks Data Plane resources within our own VNet. 
 
-### Key Concepts
+## Key Concepts
 
 **Workspace** - environment for accessing all of Azure Databricks assets. A workspace organizes objects (notebooks, libraries, dashboards, and experiments) into folders and provides access to data objects and computational resources.
 
@@ -65,20 +65,20 @@ If we need advanced network connectivity, such as custom VNet peering and VNet i
 
 **Job** - A non-interactive mechanism for running a notebook or library either immediately or on a scheduled basis.
 
-### Architecture of Azure Databricks spark cluster
+## Architecture of Azure Databricks spark cluster
 
 Apache Spark clusters are groups of computers that are treated as a single computer and handle the execution of commands issued from notebooks. Using a master-worker type architecture, clusters allow processing of data to be parallelized across many computers to improve scale and performance. They consist of a Spark Driver (master) and worker nodes. The driver node sends work to the worker nodes and instructs them to pull data from a specified data source.
 
 In Databricks, the notebook interface is the driver program. This driver program contains the main loop for the program and creates distributed datasets on the cluster, then applies operations (transformations & actions) to those datasets. Driver programs access Apache Spark through a SparkSession object regardless of deployment location.
 
-Microsoft Azure manages the cluster, and auto-scales it as needed based on your usage and the setting used when configuring the cluster. Auto-termination can also be enabled, which allows Azure to terminate the cluster after a specified number of minutes of inactivity.
+Microsoft Azure manages the cluster, and auto-scales it as needed based on usage and the setting used when configuring the cluster. Auto-termination can also be enabled, which allows Azure to terminate the cluster after a specified number of minutes of inactivity.
 
  When creating an Azure Databricks service, a "Databricks appliance" is deployed as an Azure resource in our subscription. The "Databricks appliance" is deployed into Azure as a managed resource group containing the Driver and Worker VMs, along with other required resources, including a virtual network, a security group, and a storage account. All metadata for the cluster, such as scheduled jobs, is stored in an Azure Database with geo-replication for fault tolerance.
 
  Internally, Azure Kubernetes Service (AKS) is used to run the Azure Databricks control-plane and data-planes via containers.
 
 
-### Architecture of a Spark job
+## Architecture of a Spark job
 
 Spark is a Distributed computing environment. The unit of distribution is a Spark Cluster. Every Cluster has a Driver and one or more executors. Work submitted to the Cluster is split into as many independent Jobs as needed. This is how work is distributed across the Cluster's nodes. Jobs are further subdivided into tasks. The input to a job is partitioned into one or more partitions. These partitions are the unit of work for each slot. In between tasks, partitions may need to be re-organized and shared over the network.
 
@@ -96,21 +96,21 @@ Spark is a Distributed computing environment. The unit of distribution is a Spar
 - Depending on the work required, multiple Jobs will be required.
 - Each Job is broken down into Stages.
 
-### Data Protection
+## Data Protection
 
 - Encryption at-rest and in-transit
 - Access control - ADLS Passthrough
 - Access control - folders, notebooks, clusters, jobs and tables
 - Secrets (Key Vault-backed secrets)
 
-### Lazy evaluation
+## Lazy evaluation
 
 - Transformations are **lazy**
 - Actions are **eager**
 
 Laziness it's important since it doesn't force all data to be loaded, it's easier to parallelize operations (multiple transformations can be processed on a single data element, single thread, single machine) and optimizations can be applied prior to code compilation.
 
-#### **Types of Transformations**
+## **Types of Transformations**
 
 A transformation may be wide or narrow.
 
@@ -118,13 +118,13 @@ A wide transformation (distinct, groupBy, repartition...) requires sharing data 
 
 A narrow transformation (filter, drop, coalesce...) can be applied per partition/worker with no need to share or shuffle data to other workers.
 
-#### **Catalyst Optimizer**
+## **Catalyst Optimizer**
 
 At the core of Spark SQL lies the Catalyst Optimizer which is a query optimizer that supports both rule-based and cost-based optimization.
 
 When code is executed, Spark SQL uses Catalyst's general tree transformation framework in four phases: **(1)** analyzing a logical plan to resolve references, **(2)** logical plan optimization,** (3)** physical planning, and **(4)** code generation to compile parts of the query to Java bytecode. In the physical planning phase, Catalyst may generate multiple plans and compare them based on cost. All other phases are purely rule-based.
 
-#### **Performance enhancements enabled by shuffle operations and Tungsten**
+### **Performance enhancements enabled by shuffle operations and Tungsten**
 
 **Pipelining**
 
@@ -154,7 +154,7 @@ Tungsten prevents the need for expensive serialization and de-serialization of o
 UnsafeRow is the in-memory storage format for Spark SQL, DataFrames & Datasets. Advantages include compactness and efficiency (Spark can operatate directly out of Tungsten).
 
 
-### Delta Lake
+## Delta Lake
 
 Delta Lake is a file format that can help build a data lake comprised of one or many tables in Delta Lake format. Delta Lake integrates tightly with Apache Spark, and uses an open format that is based on Parquet. Because it is an open-source format, Delta Lake is also supported by other data platforms, including Azure Synapse Analytics.
 
@@ -167,13 +167,13 @@ We can read and write data that's stored in Delta Lake by using Apache Spark SQL
 - **Time Travel (data versioning)**: Delta Lake provides snapshots of data enabling developers to access and revert to earlier versions of data for audits, rollbacks or to reproduce experiments.
 - **Open Format**: All data in Delta Lake is stored in Apache Parquet format enabling Delta Lake to leverage the efficient compression and encoding schemes that are native to Parquet.
 - **Unified Batch and Streaming Source and Sink**: A table in Delta Lake is both a batch table, as well as a streaming source and sink. Streaming data ingest, batch historic backfill, and interactive queries all just work out of the box.
-**Schema Enforcement**: Delta Lake provides the ability to specify your schema and enforce it. This helps ensure that the data types are correct and required columns are present, preventing bad **data from causing data corruption.
-- **Schema Evolution**:Big data is continuously changing. Delta Lake enables you to make changes to a table schema that can be applied automatically, without the need for cumbersome DDL.
+- **Schema Enforcement**: Delta Lake provides the ability to specify a schema and enforce it. This helps ensure that the data types are correct and required columns are present, preventing bad data from causing data corruption.
+- **Schema Evolution**: Big data is continuously changing. Delta Lake enables changes to a table schema that can be applied automatically, without the need for cumbersome DDL.
 - **100% Compatible with Apache Spark API**: Developers can use Delta Lake with their existing data pipelines with minimal change as it is fully compatible with Spark, the commonly used big data processing engine.
 
 Some additional features and optimizations:
 
 - **Optimize** - performs file compaction, small files are compacted together into new larger files up to 1GB. This helps dealing with the small file problem.
-- **Data skipping** - performance optimization that aims at speeindg up queries that contain filters.
+- **Data skipping** - performance optimization that aims at speeding up queries that contain filters.
 - **ZOrdering** - technique to colocate related information in the same set of files. Maps multidimensional data to one dimension while preserving locality of data points.
 - **Vacuum** - allows the clean up of invalid files to save on storage costs. Invalid files are small files compacted into a larger file with the *Optimize* command.
