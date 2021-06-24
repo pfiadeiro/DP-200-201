@@ -19,6 +19,18 @@ The RUs provisioned on a Cosmos container (or database) are provisioned in all t
 - **Cassandra** - stores data in column-oriented schema. It's possible to query data by using the Cassandra Query Language (CQL), and data will appear to be a partitioned row store. Just like the MongoDB API, any clients or tools should be able to connect transparently to Azure Cosmos DB; only connection settings should need to be updated. 
 - **Gremlin** -  allows users to make graph queries and stores data as edges and vertices. A graph-based view on the database means data is either a vertex (which is an individual item in the database), or an edge (which is a relationship between items in the database).
 - **Table** - stores data in key/value format. Provides support for applications that are written for Azure Table Storage that need premium capabilities like global distribution, high availability, scalable throughput. The original Table API only allows for indexing on the Partition and Row keys; there are no secondary indexes. Storing table data in Cosmos DB automatically indexes all the properties, and requires no index management. Querying is accomplished by using OData and LINQ queries in code, and the original REST API for GET operations.
+
+A Cosmos DB container is specialized into API-specific entities as shown in the following table:
+
+| Azure Cosmos entity | SQL API | Cassandra API | Azure Cosmos DB API for MongoDB | Gremlin API | Table API |
+| --- | --- | --- | --- | --- | --- |
+|Azure Cosmos container | Container | Table | Collection | Graph | Table |
+
+Cosmos DB items
+
+| Cosmos entity | SQL API | Cassandra API | Azure Cosmos DB API for MongoDB | Gremlin API | Table API |
+| --- | --- | --- | --- | --- | --- |
+|Azure Cosmos item | Item | Row | Document | Node or edge | Item |
 ## Partition Strategy
 
 Azure Cosmos DB uses partitioning to scale individual containers in a database to meet the performance needs. In partitioning, the items in a container are divided into distinct subsets called ***logical partitions***. Logical partitions are formed based on the value of a partition key that is associated with each item in a container. All the items in a logical partition have the same partition key value.
