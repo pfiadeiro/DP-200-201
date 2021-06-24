@@ -177,3 +177,9 @@ Some additional features and optimizations:
 - **Data skipping** - performance optimization that aims at speeding up queries that contain filters.
 - **ZOrdering** - technique to colocate related information in the same set of files. Maps multidimensional data to one dimension while preserving locality of data points.
 - **Vacuum** - allows the clean up of invalid files to save on storage costs. Invalid files are small files compacted into a larger file with the *Optimize* command.
+
+## Monitor Databricks
+
+To monitor Databricks, we need to use the *Dropwizard Metrics Library* which requires the JAR file *spark-listeners-loganalytics-1.0-SNAPSHOT.jar* to be built. We can then create gauges or counters in our application code.
+
+It's also possible to send application logs to Log Analytics by using the Log4j appender in the same library. We create a log4j.properties for the application.

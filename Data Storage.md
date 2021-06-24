@@ -34,3 +34,60 @@ Some of its advantages are:
 - **Data redundancy** - takes advantage of the Azure Blob replication models that provide data redundancy in a single data center with locally redundant storage (LRS), or to a secondary region by using the Geo-redundant storage (GRS) option.
 
 Hierarchical namespaces organize blob data into directories and stores metadata about each directory and the files within it. This structure allows operations, such as directory renames and deletes, to be performed in a single atomic operation. Flat namespaces, by contrast, require several operations proportionate to the number of objects in the structure. Hierarchical namespaces keep the data organized, which yields better storage and retrieval performance for an analytical use case and lowers the cost of analysis.
+
+## Lifecycle Management
+
+Azure Blob Storage lifecycle management offers a rich, rule-based policy for GPv2 and blob storage accounts. The policy can be used to transition data to the appropriate access tiers or expire at the end of the data's lifecycle.
+
+The policy allows:
+
+- Transition blobs from cool to hot immediately if accessed to optimize for performance
+- Transition blobs, blob versions, and blob snapshots to a cooler storage tier (hot to cool, hot to archive, or cool to archive) if not accessed or modified for a period of time to optimize for cost
+- Delete blobs, blob versions, and blob snapshots at the end of their lifecycles
+- Define rules to be run once per day at the storage account level
+- Apply rules to containers or a subset of blobs (using name prefixes or blob index tags as filters)
+
+```JSON
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "rulefoo",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {
+          "version": {
+            "delete": {
+              "daysAfterCreationGreaterThan": 90
+            }
+          },
+          "baseBlob": {
+            "tierToCool": {
+              "daysAfterModificationGreaterThan": 30
+            },
+            "tierToArchive": {
+              "daysAfterModificationGreaterThan": 90
+            },
+            "delete": {
+              "daysAfterModificationGreaterThan": 2555
+            }
+          }
+        },
+        "filters": {
+          "blobTypes": [
+            "blockBlob"
+          ],
+          "prefixMatch": [
+            "container1/foo"
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+A lifecycle management policy is a collection of rules in a JSON document. Each rule has a name, a boolean determining whether it's enabled or not, type (Lifecycle) and a definition made up of a filter set and action set.
+
+Rule filters that can be used are *blobTypes* (blockBlob and appendBlob that only supports delete), *prefixMatch* and *blobIndexMatch*.
+
+Rule actions available are *tierToCool*, *enableAutoTierToHotFromCool*, *tierToArchive* and *delete*. The 2nd option isn't available for Snapshot and Version. This is applicable to Base Blob, Snapshot and Version.
