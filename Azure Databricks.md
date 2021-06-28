@@ -183,3 +183,9 @@ Some additional features and optimizations:
 To monitor Databricks, we need to use the *Dropwizard Metrics Library* which requires the JAR file *spark-listeners-loganalytics-1.0-SNAPSHOT.jar* to be built. We can then create gauges or counters in our application code.
 
 It's also possible to send application logs to Log Analytics by using the Log4j appender in the same library. We create a log4j.properties for the application.
+
+## Regional DR for Databricks Clusters
+
+1 - Provision multiple Azure Databricks workspaces in separate Azure regions. 
+2 - Use geo-redundant storage. By default, the data associated with Azure Databricks is stored in Azure Storage and the results from Databricks jobs are stored in Azure Blob Storage, so that the processed data is durable and remains highly available after the cluster is terminated. The cluster storage and job storage are located in the same availability zone. To protect against regional unavailability, Azure Databricks workspaces use geo-redundant storage by default.
+3 - Once the secondary region is created, migrate the users, user folders, notebooks, cluster configuration, jobs configuration, libraries, storage, init scripts, and reconfigure access control.

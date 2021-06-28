@@ -53,6 +53,12 @@ Azure Stream Analytics includes native support for five kinds of temporal window
 
 - **Snapshot Window** - grups events that have the same timestamp. DOesn't require a specific window function, can just use System.Timestamp() in the GROUP BY clause.
 
+## Job Reliability
+
+Stream Analytics guarantees jobs in paired regions are updated in separate batches. As a result there is a sufficient time gap between the updates to identify potential issues and remediate them.
+
+It is recommended to deploy identical jobs to both paired regions. We should then monitor these jobs to get notified when something unexpected happens. 
+
 
 ## Azure Event Hub
 

@@ -99,5 +99,12 @@ Manual failover can be executed as well.
 
 Change feed is a persistent record of changes to a container in the order they occur. The persisted changes can be processed asynchronously and incrementally, and the output can be distributed across one or more consumers for parallel processing. Change feed is enabled by default for all Azure Cosmos accounts.
 
+**SLAs for availability**
+
+|Operation type  | Single-region |Multi-region (single-region writes)|Multi-region (multi-region writes) |
+|---------|---------|---------|-------|
+|Writes    | 99.99    |99.99   |99.999|
+|Reads     | 99.99    |99.999  |99.999|
+
 
 
